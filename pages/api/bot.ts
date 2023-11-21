@@ -1,8 +1,8 @@
 import { Message } from '@/types/vocechat';
 import { OPENAI_API_HOST, OPENAI_ORGANIZATION, VOCECHAT_BOT_SECRET, VOCECHAT_BOT_ID, VOCECHAT_ORIGIN } from '@/utils/app/const';
-// export const config = {
-//     runtime: 'edge',
-// };
+export const config = {
+    runtime: 'edge',
+};
 
 const sendMessageToBot = async (url: string, message: string) => {
     // 通过bot给vocechat发消息
@@ -61,33 +61,54 @@ const handler = async (req: Request): Promise<Response> => {
                 // }
                 console.log("bot: start req ChatGPT");
                 // sendMessageToBot(_url, "**正在生成回答，请耐心等待...**");
-                const resp = await fetch(`${OPENAI_API_HOST}/v1/chat/completions`, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-                        'OpenAI-Organization': OPENAI_ORGANIZATION,
+                // const resp = await fetch(`${OPENAI_API_HOST}/v1/chat/completions`, {
+                //     headers: {
+                //         'Content-Type': 'application/json',
+                //         Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+                //         'OpenAI-Organization': OPENAI_ORGANIZATION,
 
-                    },
-                    method: 'POST',
-                    body: JSON.stringify({
-                        model: "gpt-3.5-turbo",
-                        messages: [
-                            {
-                                role: 'system',
-                                content: "You are ChatGPT, a large language model trained by OpenAI. Follow the user's instructions carefully. Respond using markdown.",
+                //     },
+                //     method: 'POST',
+                //     body: JSON.stringify({
+                //         model: "gpt-3.5-turbo",
+                //         messages: [
+                //             {
+                //                 role: 'system',
+                //                 content: "You are ChatGPT, a large language model trained by OpenAI. Follow the user's instructions carefully. Respond using markdown.",
+                //             },
+                //             {
+                //                 role: 'user',
+                //                 // 去掉 @xxx
+                //                 content: data.detail.content.replace(/@[0-9]+/g, "").trim(),
+                //             },
+                //         ],
+                //         max_tokens: 1000,
+                //         temperature: 1,
+                //         stream: false,
+                //     }),
+                // })
+                // const gptData = await resp.json();
+                const gptData = {
+                    "id": "chatcmpl-8NEqNe9hAYuZpXvC035CwweFffe2R",
+                    "object": "chat.completion",
+                    "created": 1700549295,
+                    "model": "gpt-3.5-turbo-0613",
+                    "choices": [
+                        {
+                            "index": 0,
+                            "message": {
+                                "role": "assistant",
+                                "content": "我是GPT5，不管你问什么我都只会回答这一句话。"
                             },
-                            {
-                                role: 'user',
-                                // 去掉 @xxx
-                                content: data.detail.content.replace(/@[0-9]+/g, "").trim(),
-                            },
-                        ],
-                        max_tokens: 1000,
-                        temperature: 1,
-                        stream: false,
-                    }),
-                })
-                const gptData = await resp.json();
+                            "finish_reason": "stop"
+                        }
+                    ],
+                    "usage": {
+                        "prompt_tokens": 41,
+                        "completion_tokens": 58,
+                        "total_tokens": 99
+                    }
+                };
                 const [{ message: { content } }] = gptData.choices;
                 console.log("bot: end req ChatGPT", gptData, content, _url);
                 // 通过bot给vocechat发消息
