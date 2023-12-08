@@ -82,16 +82,20 @@ const handler = async (req: Request): Promise<Response> => {
                                 content: data.detail.content.replace(/@[0-9]+/g, "").trim(),
                             },
                         ],
-                        max_tokens: 1000,
-                        temperature: 1,
-                        stream: false,
                     }),
                 })
                 const gptData = await resp.json();
                 const [{ message: { content } }] = gptData.choices;
                 console.log("bot: end req ChatGPT", gptData, content, _url);
                 // 通过bot给vocechat发消息
-                await sendMessageToBot(_url, content);
+                fetch(_url, {
+                    method: "POST",
+                    headers: {
+                        "content-type": "text/markdown",
+                        "x-api-key": VOCECHAT_BOT_SECRET,
+                    },
+                    body: content,
+                });
                 handlerResp = new Response(`OK`, { status: 200 });
 
             }
